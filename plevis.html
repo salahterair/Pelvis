@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pelvic Anatomy MCQ — UMST Faculty of Medicine</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#0b1020; --ink:#e5e7eb; --muted:#9ca3af;
+    --line:#1f2937; --accent:#22c55e; --danger:#ef4444;
+  }
+  html,body{height:100%;margin:0;background:linear-gradient(135deg,#0b1226,#0f172a);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+  .wrap{max-width:980px;margin:0 auto;padding:18px}
+  header{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:12px;text-align:center}
+  header img{width:100px;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+  .uni{font-weight:800;font-size:18px;line-height:1.2}
+  .dept{color:var(--muted);font-size:14px}
+  .batch{color:#e9e9e9;font-weight:600}
+  .card{background:linear-gradient(180deg,#0b1020,#090f1a);border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.25);padding:18px}
+  .title{font-weight:800;font-size:22px;margin:2px 0 10px}
+  .meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .pill{border:1px solid var(--line);border-radius:999px;padding:4px 8px;color:var(--muted);font-size:12px}
+  .meter{height:10px;background:#0b0f1a;border:1px solid #23314a;border-radius:999px;overflow:hidden}
+  .meter>span{display:block;height:100%;width:0;background:linear-gradient(90deg,#60a5fa,#22d3ee);transition:width .35s ease}
+  .qbox{margin-top:16px}
+  .q{font-weight:700;margin:2px 0 8px}
+  .options{display:grid;gap:10px;margin-top:8px}
+  label.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid #263243;background:#0b1020;border-radius:12px;padding:10px;cursor:pointer}
+  input[type=radio]{margin-top:4px}
+  .feedback{margin-top:10px;font-size:14px}
+  .good{color:var(--accent)}
+  .bad{color:var(--danger)}
+  .controls{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
+  button{background:#1f2937;color:var(--ink);border:1px solid #2a394d;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer}
+  button.primary{background:linear-gradient(180deg,#2563eb,#1d4ed8);border-color:#3b82f6}
+  button:disabled{opacity:.6;cursor:not-allowed}
+  .muted{color:var(--muted)}
+  .summary{margin-top:16px}
+  .kicker{color:#a7f3d0;font-weight:700}
+  .footer-note{margin-top:10px;color:var(--muted);font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="logo.jpg" alt="UMST Logo" />
+    <div class="uni">University of Medical Sciences & Technology</div>
+    <div class="dept">Faculty of Medicine</div>
+    <div class="batch">Batch 30 & 28 – Abha Center</div>
+  </header>
+
+  <div class="card">
+    <div class="title">Pelvic Anatomy — MCQ Quiz</div>
+    <div class="meta">
+      <span class="pill">Batch 30 & 28 – Abha Center</span>
+      <span class="pill">Format: Clinical vignettes (simple)</span>
+      <span class="pill">Questions: <span id="total">0</span></span>
+      <span class="pill">Score: <b id="score">0</b></span>
+      <span class="pill">Q <b id="idx">0</b>/<b id="tidx">0</b></span>
+      <span class="pill" style="border-color:var(--accent); color:var(--accent);">Created by Dr. Salaheldin Terair</span>
+    </div>
+    <div class="meter"><span id="bar"></span></div>
+
+    <div id="mount" class="qbox"></div>
+
+    <div class="controls">
+      <button id="submitBtn" class="primary" disabled>Submit</button>
+      <button id="nextBtn" disabled>Next</button>
+      <button id="restartBtn">Restart</button>
+    </div>
+    <div class="footer-note">Tip: select an option, submit to see feedback, then go next.</div>
+  </div>
+</div>
+
+<script>
+/* -------------------- DATA -------------------- */
+/* Pelvic Anatomy (bones, joints/ligaments, pelvic floor & perineum, viscera, vessels, nerves, lymph, obstetric anatomy). */
+const QUESTIONS = [
+  // Pelvic bones & joints
+  { q:"A fall causes pain at the pubic symphysis. This joint is best classified as:",
+    options:["Synovial plane","Secondary cartilaginous (fibrocartilaginous)","Primary cartilaginous","Syndesmosis"],
+    answer:1,
+    explanation:"The pubic symphysis is a secondary cartilaginous joint with a fibrocartilaginous disc."
+  },
+  { q:"Weight from the trunk is transmitted to the lower limbs mainly through which ligament complex at the sacrum?",
+    options:["Sacrotuberous and sacrospinous ligaments","Iliolumbar ligament","Inguinal ligament","Transverse acetabular ligament"],
+    answer:0,
+    explanation:"Sacrotuberous and sacrospinous ligaments resist sacral nutation and stabilize the sacroiliac region."
+  },
+
+  // Pelvic inlet/outlet & obstetric conjugates
+  { q:"During pelvic exam, the diagonal conjugate is 12.5 cm. The obstetric (true) conjugate is approximately:",
+    options:["=12.5 cm","~11.0 cm (−1.5 cm)","~10.0 cm (−2.5 cm)","~13.0 cm (+0.5 cm)"],
+    answer:1,
+    explanation:"True conjugate ≈ diagonal conjugate − 1.5 cm."
+  },
+  { q:"Which diameter primarily limits the fetal head at the pelvic outlet?",
+    options:["Anteroposterior (between tip of coccyx and pubic arch)","Interspinous diameter","Transverse diameter of inlet","Oblique diameter"],
+    answer:1,
+    explanation:"The interspinous distance (between ischial spines) is typically the narrowest."
+  },
+
+  // Pelvic floor (levator ani, coccygeus)
+  { q:"A postpartum patient has fecal incontinence. Damage to which part of levator ani most directly compromises the anorectal angle?",
+    options:["Puborectalis","Iliococcygeus","Pubococcygeus","Coccygeus"],
+    answer:0,
+    explanation:"Puborectalis forms a sling around the anorectal junction, maintaining the anorectal angle."
+  },
+  { q:"Levator ani is primarily innervated by:",
+    options:["Pudendal nerve (S2–S4) via inferior rectal branches","Nerve to levator ani (S3–S4) and pudendal contributions","Pelvic splanchnics (parasympathetic)","Obturator nerve"],
+    answer:1,
+    explanation:"Motor supply via nerve to levator ani (S3–S4); pudendal contributes in some fibers."
+  },
+
+  // Perineum triangles & spaces
+  { q:"A deep perineal laceration spreads into the deep perineal pouch. Which structure is contained here in males?",
+    options:["Bulb of penis","External urethral sphincter","Superficial transverse perineal muscle","Ischiocavernosus muscle"],
+    answer:1,
+    explanation:"Deep pouch: external urethral sphincter, deep transverse perineal (male), and part of urethra; bulb is superficial pouch."
+  },
+  { q:"Rupture of spongy urethra with Buck’s fascia torn allows urine to track into:",
+    options:["Ischioanal fossa","Deep perineal pouch","Superficial perineal pouch and scrotum/penis lower abdominal wall","Retropubic space only"],
+    answer:2,
+    explanation:"With Buck’s fascia torn, urine extravasates into the superficial perineal space and potentially into the lower anterior abdominal wall (Scarpa’s)."
+  },
+
+  // Ureter relations (water under the bridge etc.)
+  { q:"In females, the ureter passes inferior (under) which structure near the lateral vaginal fornix?",
+    options:["Uterine artery","Ovarian artery","Round ligament","Obturator artery"],
+    answer:0,
+    explanation:"Water (ureter) under the bridge (uterine artery) ~2 cm lateral to cervix."
+  },
+  { q:"In males, the ureter passes beneath the ductus deferens before entering the bladder. Injury during which surgery is likely?",
+    options:["Inguinal hernia repair","Vasectomy","Appendectomy","Hemorrhoidectomy"],
+    answer:1,
+    explanation:"The vas crosses the ureter near the bladder; vasectomy is performed in the scrotum but knowledge of relations is key."
+  },
+
+  // Bladder & urethra
+  { q:"Which bladder region is smooth and derived from the mesonephric ducts?",
+    options:["Dome","Trigone","Detrusor muscle","Urachus"],
+    answer:1,
+    explanation:"The trigone is smooth and has different embryologic origin (mesonephric ducts)."
+  },
+  { q:"After pelvic fracture, a male patient has urine retention and a high-riding prostate. The most likely urethral injury is:",
+    options:["Penile urethra","Membranous urethra","Prostatic urethra","External meatus"],
+    answer:1,
+    explanation:"Posterior (membranous) urethral tears occur with pelvic fractures; prostate may appear “high-riding”."
+  },
+
+  // Rectum & anal canal
+  { q:"Internal hemorrhoids are typically painless because the mucosa above the pectinate line is innervated by:",
+    options:["Somatic inferior rectal nerves","Autonomic visceral afferents","Obturator nerve","Genitofemoral nerve"],
+    answer:1,
+    explanation:"Visceral innervation above the pectinate line → insensitive to pain; below line = somatic pain."
+  },
+  { q:"Lymph from the anal canal below the pectinate line drains initially to:",
+    options:["Internal iliac nodes","Inferior mesenteric nodes","Superficial inguinal nodes","Para-aortic nodes"],
+    answer:2,
+    explanation:"Below pectinate → superficial inguinal nodes; above → internal iliac."
+  },
+
+  // Uterus & adnexa
+  { q:"A patient with uterine prolapse likely has failure of which main support?",
+    options:["Round ligament of uterus","Cardinal (transverse cervical) ligaments and pelvic floor","Broad ligament only","Suspensory ligament of ovary"],
+    answer:1,
+    explanation:"Cardinal ligaments (with uterosacral) and levator ani provide major support to uterus."
+  },
+  { q:"The uterine artery is a branch of the:",
+    options:["Posterior division of internal iliac","Anterior division of internal iliac","External iliac","Common iliac"],
+    answer:1,
+    explanation:"Uterine artery arises from the anterior division of the internal iliac artery."
+  },
+  { q:"Ovarian veins drain asymmetrically. The left ovarian vein drains into the:",
+    options:["Left renal vein","Inferior vena cava","Left common iliac vein","Internal iliac vein"],
+    answer:0,
+    explanation:"Left ovarian → left renal vein; right ovarian → IVC."
+  },
+
+  // Prostate & male pelvis
+  { q:"Benign prostatic hyperplasia (BPH) primarily involves which prostatic zone?",
+    options:["Peripheral zone","Central zone","Transition zone","Anterior fibromuscular stroma"],
+    answer:2,
+    explanation:"BPH affects the transition zone around the prostatic urethra."
+  },
+  { q:"Prostate cancer most often arises in the:",
+    options:["Peripheral zone (posterior)","Transition zone","Central zone","Anterior fibromuscular stroma"],
+    answer:0,
+    explanation:"Most adenocarcinomas originate in the peripheral (posterior) zone—palpable on DRE."
+  },
+
+  // Vessels & anastomoses
+  { q:"Severe postpartum hemorrhage persists after uterine massage. Ligation of which artery can reduce uterine blood flow while preserving the ovary?",
+    options:["Internal iliac (anterior division)","Uterine artery","Ovarian artery","External iliac artery"],
+    answer:1,
+    explanation:"Uterine artery ligation reduces bleeding; ovarian artery maintains collateral flow to the uterus via the ovarian branch."
+  },
+  { q:"Which artery is at risk during surgical repair of a femoral hernia due to its location near the lacunar ligament?",
+    options:["Obturator artery (aberrant/accessory)","Inferior epigastric artery","Deep circumflex iliac artery","Medial circumflex femoral artery"],
+    answer:0,
+    explanation:"An aberrant obturator artery (corona mortis) may arise from external iliac/inferior epigastric and run near the lacunar ligament."
+  },
+
+  // Nerves
+  { q:"Pain from the fundus of the uterus in labor is referred to which dermatomes?",
+    options:["T10–L1 (via sympathetic)","S2–S4 (pudendal)","L4–S1","C3–C5"],
+    answer:0,
+    explanation:"Uterine body/fundus visceral afferents travel with sympathetics to T10–L1."
+  },
+  { q:"A pudendal nerve block is administered near which landmark?",
+    options:["Ischial spine via transvaginal approach","Pubic tubercle","ASIS","Ischial tuberosity medial surface"],
+    answer:0,
+    explanation:"Needle aimed at the ischial spine to anesthetize pudendal nerve at the sacrospinous ligament."
+  },
+  { q:"Injury to which nerve produces loss of cutaneous sensation over the posterior scrotum/labia and weakness of the external anal sphincter?",
+    options:["Genitofemoral nerve","Ilioinguinal nerve","Pudendal nerve","Obturator nerve"],
+    answer:2,
+    explanation:"Pudendal nerve (S2–S4) supplies external anal sphincter and perineal skin."
+  },
+
+  // Pelvic fascia & spaces
+  { q:"The retropubic (prevesical) space of Retzius lies between:",
+    options:["Pubic symphysis and bladder","Bladder and uterus","Rectum and sacrum","Uterus and rectum"],
+    answer:0,
+    explanation:"An avascular space used surgically between pubic symphysis and bladder."
+  },
+  { q:"A perianal abscess spreads in the ischioanal fossa. Which statement is true?",
+    options:["The fossa is narrow inferiorly and wide superiorly","It is traversed by the pudendal canal and inferior rectal vessels/nerves laterally","It communicates anteriorly across the perineal body only","It is bounded medially by the obturator internus muscle"],
+    answer:1,
+    explanation:"Pudendal canal runs in the lateral wall; fossa is wide inferiorly; medially bounded by levator ani and anal canal."
+  },
+
+  // Female perineum specifics
+  { q:"Bartholin (greater vestibular) gland opens into the vestibule at:",
+    options:["Anterior to clitoris","At the external urethral meatus","Posterolateral to vaginal orifice","Within the deep perineal pouch"],
+    answer:2,
+    explanation:"Openings are posterolateral to the vaginal orifice in the superficial perineal pouch."
+  },
+  { q:"An episiotomy at the midline risks tearing which structure directly posterior to the vaginal orifice?",
+    options:["Bulbospongiosus","Perineal body","Ischiocavernosus","Transverse perineal (deep)"],
+    answer:1,
+    explanation:"The perineal body is a central fibromuscular node—critical for pelvic floor support."
+  },
+
+  // Lymphatics
+  { q:"Cancer of the glans penis first drains to which lymph nodes?",
+    options:["Deep inguinal nodes","Superficial inguinal nodes","External iliac nodes","Internal iliac nodes"],
+    answer:0,
+    explanation:"Glans → deep inguinal (node of Cloquet) → external iliac."
+  },
+  { q:"Lymph from the uterine fundus (especially near the round ligament) can drain to:",
+    options:["External iliac nodes exclusively","Inguinal nodes via the round ligament","Para-aortic nodes only","Obturator nodes only"],
+    answer:1,
+    explanation:"Some fundal lymph follows the round ligament to superficial inguinal nodes."
+  },
+
+  // Pelvic viscera orientation
+  { q:"The peritoneal pouch between uterus and rectum is the:",
+    options:["Vesicouterine pouch","Rectouterine pouch (of Douglas)","Pararectal fossa","Rectovesical pouch"],
+    answer:1,
+    explanation:"In females, deepest point of peritoneal cavity in upright position."
+  },
+  { q:"In males, the peritoneal reflection between bladder and rectum forms the:",
+    options:["Rectovesical pouch","Vesicorectal fossa","Paravesical space","Retrorectal space"],
+    answer:0,
+    explanation:"Rectovesical pouch is the most inferior peritoneal space in males."
+  },
+
+  // Hip/pelvic wall muscles (clinically relevant)
+  { q:"The obturator nerve is most vulnerable in which condition?",
+    options:["Pelvic fracture involving pubic ramus","Fracture of neck of fibula","Inguinal hernia","Anterior hip dislocation affecting femoral nerve"],
+    answer:0,
+    explanation:"Obturator nerve runs through obturator canal in superior pubic ramus and can be injured in fractures or pelvic surgery."
+  }
+];
+
+/* -------------------- QUIZ ENGINE -------------------- */
+let idx = 0;               // 0-based question index
+let score = 0;             // +1 per correct
+let answered = false;
+
+const $mount = document.getElementById("mount");
+const $submit = document.getElementById("submitBtn");
+const $next = document.getElementById("nextBtn");
+const $restart = document.getElementById("restartBtn");
+const $score = document.getElementById("score");
+const $bar = document.getElementById("bar");
+const $idx = document.getElementById("idx");
+const $tidx = document.getElementById("tidx");
+const $total = document.getElementById("total");
+
+$total.textContent = QUESTIONS.length;
+$tidx.textContent = QUESTIONS.length;
+
+function renderQuestion() {
+  const q = QUESTIONS[idx];
+  $mount.innerHTML = `
+    <div class="q"><span class="pill" style="border-color:#334155">Q${idx+1}</span> ${q.q}</div>
+    <div class="options">
+      ${q.options.map((opt,i)=>`
+        <label class="opt">
+          <input type="radio" name="opt" value="${i}">
+          <div>${String.fromCharCode(65+i)}. ${opt}</div>
+        </label>
+      `).join("")}
+    </div>
+    <div id="fb" class="feedback muted"></div>
+  `;
+  $idx.textContent = idx+1;
+  answered = false;
+  $submit.disabled = true;
+  $next.disabled = true;
+
+  [...$mount.querySelectorAll('input[type=radio]')].forEach(r=>{
+    r.addEventListener('change', ()=>{ $submit.disabled = false; });
+  });
+
+  updateMeter();
+}
+
+function updateMeter(){
+  const pct = Math.round(((idx) / QUESTIONS.length) * 100);
+  $bar.style.width = pct + "%";
+}
+
+$submit.addEventListener('click', ()=>{
+  if (answered) return;
+  const sel = $mount.querySelector('input[type=radio]:checked');
+  if (!sel) return;
+  answered = true;
+  const choice = Number(sel.value);
+  const q = QUESTIONS[idx];
+  const fb = document.getElementById('fb');
+
+  if (choice === q.answer) {
+    score += 1;
+    fb.innerHTML = `<span class="good">Correct.</span> ${q.explanation}`;
+  } else {
+    fb.innerHTML = `<span class="bad">Not quite.</span> ${q.explanation}`;
+  }
+  document.getElementById('score').textContent = score;
+  $next.disabled = false;
+  $submit.disabled = true;
+});
+
+$next.addEventListener('click', ()=>{
+  if (idx < QUESTIONS.length - 1) {
+    idx += 1;
+    renderQuestion();
+  } else {
+    finish();
+  }
+});
+
+$restart.addEventListener('click', ()=>{
+  idx = 0; score = 0;
+  document.getElementById('score').textContent = score;
+  renderQuestion();
+});
+
+function finish(){
+  $mount.innerHTML = `
+    <div class="summary">
+      <div class="kicker">Quiz Complete</div>
+      <p>You scored <b>${score}</b> / <b>${QUESTIONS.length}</b>.</p>
+      <p class="muted">Review: refresh the page or press <b>Restart</b> to try again.</p>
+    </div>
+  `;
+  $next.disabled = true;
+  $submit.disabled = true;
+  $bar.style.width = "100%";
+}
+
+/* init */
+renderQuestion();
+</script>
+</body>
+</html>
